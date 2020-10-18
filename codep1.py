@@ -79,18 +79,33 @@ t_eval_rk4 = np.arange(0, 2 * T, dt)
 'Definición de la forma de la solución'
 
 y_rk4 = np.zeros((len(t_eval_rk4), 2))
+y_rk4G = np.zeros((len(t_eval_rk4), 2))
 
 # Condición inicial
+
+'Pequeña'
 
 phi_0 = np.pi/20
 omega_0 = 0
 y_rk4[0] = [phi_0, omega_0]
 
+'Grande'
+
+phi_0G = np.pi/2.704
+omega_0G = 0
+y_rk4G[0] = [phi_0G, omega_0G]
+
 'Loop para dar los pasos de RK4 en el intervalo de integración'
+
 for i in range(1, len(t_eval_rk4)):
     y_rk4[i] = paso_rk4(func_pendulo, dt, t_eval_rk4[i-1], y_rk4[i-1])
 
+for i in range(1, len(t_eval_rk4)):
+    y_rk4G[i] = paso_rk4(func_pendulo, dt, t_eval_rk4[i-1], y_rk4G[i-1])
+
 # Solución Analítica
+
+'Condición inicial pequeña'
 
 def peqosci(t):
     det = np.sqrt((gamma) ** 2 - 4 * (g / R))
@@ -101,12 +116,62 @@ def peqosci(t):
     ypo = A1 * np.exp(lambda1 * t) + A2 * np.exp(lambda2 * t)
     return ypo
 
-# Gráfico:
+'Condición inicial grande'
 
+def peqosciG(t):
+    det = np.sqrt((gamma) ** 2 - 4 * (g / R))
+    lambda1 = (-gamma - det) / 2
+    lambda2 = (-gamma + det) / 2
+    A1 = phi_0G / (1 - (lambda1 / lambda2))
+    A2 = -A1 * lambda1 / lambda2
+    ypo = A1 * np.exp(lambda1 * t) + A2 * np.exp(lambda2 * t)
+    return ypo
+
+'Derivada solución analítica grandes oscilaciones:'
+
+def DpeqosciG(t):
+    det = np.sqrt((gamma) ** 2 - 4 * (g / R))
+    lambda1 = (-gamma - det) / 2
+    lambda2 = (-gamma + det) / 2
+    A1 = phi_0G / (1 - (lambda1 / lambda2))
+    A2 = -A1 * lambda1 / lambda2
+    ypo = A1 * lambda1 * np.exp(lambda1 * t) + A2 * lambda2 * np.exp(lambda2 * t)
+    return ypo
+
+
+# Gráficos:
+
+'Condición inicial pequeña'
+plt.figure(1)
 plt.clf()
 plt.plot(t_eval_rk4,y_rk4[:, 0], label='rk4')
-plt.plot(t_eval_rk4,peqosci(t_eval_rk4), label='peq osc')
+plt.plot(t_eval_rk4,peqosci(t_eval_rk4), label='pequeñas oscilaciones')
 plt.xlabel('x', fontsize=15)
 plt.ylabel('y', fontsize=15)
+plt.title('Comparación condicion inicial pequeña')
+plt.legend()
+plt.show()
+
+'Condición inicial grande'
+
+plt.figure(2)
+plt.clf()
+plt.plot(t_eval_rk4,y_rk4G[:, 0], label='rk4 grandes oscilaciones')
+plt.plot(t_eval_rk4,peqosciG(t_eval_rk4), label='pequeñas oscilaciones, condicion grande')
+plt.xlabel('x', fontsize=15)
+plt.ylabel('y', fontsize=15)
+plt.title('Comparación condicion inicial grande')
+plt.legend()
+plt.show()
+
+'Diagrama de fasese para análisis energético'
+
+plt.figure(3)
+plt.clf()
+plt.plot(y_rk4G[:, 0],y_rk4G[:, 1], label='rk4 grandes oscilaciones')
+plt.plot(peqosciG(t_eval_rk4),DpeqosciG(t_eval_rk4), label='pequeñas oscilaciones, condicion grande')
+plt.xlabel('x', fontsize=15)
+plt.ylabel('y', fontsize=15)
+plt.title('Diagrama de fase')
 plt.legend()
 plt.show()

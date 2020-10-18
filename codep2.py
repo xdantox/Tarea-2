@@ -19,7 +19,7 @@ z0 = 1.0
 
 # Condiciones iniciales variadas:
 
-dl = 0.01
+dl = 0.0704
 y0v = 1.0 + dl
 x0v = 1.0 + dl
 z0v = 1.0 + dl
